@@ -1,0 +1,53 @@
+[
+    {
+        "topic": "Future of Edge Computing in 2026",
+        "expected_sections": [
+            "Executive Summary",
+            "Introduction",
+            "Key Findings",
+            "Conclusion"
+        ],
+        "min_word_count": 500,
+        "expected_keywords": [
+            "edge computing",
+            "6G",
+            "latency",
+            "AI"
+        ],
+        "quality_threshold": 0.6
+    },
+    {
+        "topic": "Quantum Machine Learning: Promise vs Reality in 2026",
+        "expected_sections": [
+            "Executive Summary",
+            "Introduction",
+            "Key Findings",
+            "Conclusion"
+        ],
+        "min_word_count": 500,
+        "expected_keywords": [
+            "quantum",
+            "machine learning",
+            "NISQ",
+            "qubits"
+        ],
+        "quality_threshold": 0.6
+    },
+    {
+        "topic": "Global AI Regulation Landscape in 2026",
+        "expected_sections": [
+            "Executive Summary",
+            "Introduction",
+            "Key Findings",
+            "Conclusion"
+        ],
+        "min_word_count": 500,
+        "expected_keywords": [
+            "regulation",
+            "EU AI Act",
+            "governance",
+            "compliance"
+        ],
+        "quality_threshold": 0.6
+    }
+]

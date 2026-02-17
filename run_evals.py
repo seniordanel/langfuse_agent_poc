@@ -41,9 +41,13 @@ def get_or_create_dataset(items: List[Dict[str, Any]]) -> Any:
     for i, item in enumerate(items):
         langfuse.create_dataset_item(
             dataset_name=DATASET_NAME,
-            input=item["input"],
-            expected_output=item["expected_output"],
-            metadata={"ground_truth": item.get("ground_truth")}
+            input=item["topic"],
+            expected_output={
+                "expected_sections": item.get("expected_sections", []),
+                "min_word_count": item.get("min_word_count", 500),
+                "expected_keywords": item.get("expected_keywords", []),
+            },
+            metadata={"quality_threshold": item.get("quality_threshold")},
         )
     
     # Return the dataset object for iteration? 

@@ -1,18 +1,16 @@
-import os
 import re
 from dotenv import load_dotenv
 
 load_dotenv()
 
 from langfuse import Langfuse
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 
 # Initialize Langfuse and LLM
 langfuse = Langfuse(timeout=120)
-llm_judge = ChatGoogleGenerativeAI(
-    model="gemini-2.0-flash",
+llm_judge = ChatOpenAI(
+    model="gpt-4o-mini",
     temperature=0.0,
-    google_api_key=os.getenv("GOOGLE_API_KEY"),
 )
 
 

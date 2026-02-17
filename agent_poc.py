@@ -5,8 +5,8 @@ import re
 from typing import Dict, Any, List
 
 from dotenv import load_dotenv
-from google import genai
 from langfuse import Langfuse, observe
+from src.openai_client import get_client, invoke
 
 # Load environment variables
 load_dotenv()
@@ -17,8 +17,8 @@ langfuse = Langfuse(
     timeout=120
 )
 
-# Configure Google GenAI
-client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+# Configure OpenAI client
+client = get_client()
 
 # --- Tools ---
 
@@ -85,22 +85,9 @@ If you already know the answer or don't need tools, go straight to Final Answer.
 
     @observe(as_type="generation")
     def call_llm(self, prompt: str) -> str:
-        """Wrapper to call Gemini and trace it."""
-        response = client.models.generate_content(
-            model="gemini-2.0-flash", contents=prompt
-        )
-        
-        if hasattr(response, 'usage_metadata') and response.usage_metadata:
-            langfuse.update_current_generation(
-                usage_details={
-                    "prompt_tokens": response.usage_metadata.prompt_token_count,
-                    "completion_tokens": response.usage_metadata.candidates_token_count,
-                    "total_tokens": response.usage_metadata.total_token_count
-                },
-                model="gemini-2.0-flash"
-            )
-            
-        return response.text
+        """Wrapper to call the LLM and trace it via Langfuse."""
+        messages = [{"role": "user", "content": prompt}]
+        return invoke(client, langfuse, messages, model="gpt-4o-mini")
 
     @observe(name="agent_run")
     def run(self, user_input: str) -> str:
@@ -114,7 +101,7 @@ If you already know the answer or don't need tools, go straight to Final Answer.
         # We can update the current trace with input metadata
         langfuse.update_current_trace(
             input=user_input,
-            metadata={"agent_type": "ReAct", "model": "gemini-2.0-flash"}
+            metadata={"agent_type": "ReAct", "model": "gpt-4o-mini"}
         )
 
         for step in range(max_steps):

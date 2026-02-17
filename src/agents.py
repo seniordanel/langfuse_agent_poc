@@ -1,22 +1,19 @@
-import os
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableConfig
 
 from src.states import AgentState
 from src.tools import search_tool, scrape_tool, keyword_extraction_tool, word_count_tool
 
 # Initialize models — two temperature profiles
-llm_creative = ChatGoogleGenerativeAI(
-    model="gemini-2.0-flash",
+llm_creative = ChatOpenAI(
+    model="gpt-4o-mini",
     temperature=0.7,
-    google_api_key=os.getenv("GOOGLE_API_KEY"),
 )
 
-llm_precise = ChatGoogleGenerativeAI(
-    model="gemini-2.0-flash",
+llm_precise = ChatOpenAI(
+    model="gpt-4o-mini",
     temperature=0.0,
-    google_api_key=os.getenv("GOOGLE_API_KEY"),
 )
 
 

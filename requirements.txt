@@ -1,3 +1,4 @@
-google-generativeai
 langfuse
+openai
+langchain-openai
 python-dotenv

@@ -66,7 +66,7 @@ langfuse_agent_poc/
 ├── run_dataset_experiment.py   # Langfuse Dataset & Experiment runner
 ├── eval_dataset.json           # 3 research topics with expected properties
 ├── pyproject.toml              # Project metadata & dependencies
-├── .env                        # API keys (Langfuse + Google)
+├── .env                        # API keys (Langfuse + OpenAI)
 └── src/
     ├── states.py               # AgentState TypedDict definition
     ├── tools.py                # Mock tools (search, scrape, keywords, word count)
@@ -84,7 +84,7 @@ langfuse_agent_poc/
 - Python 3.12 (3.14 has compatibility issues with Langfuse's dependencies)
 - [uv](https://docs.astral.sh/uv/) (recommended) or pip
 - A running [Langfuse](https://langfuse.com/docs/deployment/self-host) instance (local or cloud)
-- A Google API key for Gemini
+- An OpenAI API key
 
 ### Installation
 
@@ -94,8 +94,8 @@ uv venv --python 3.12 .venv
 
 # Install dependencies
 uv pip install --python .venv/bin/python \
-  langfuse langchain langchain-core langchain-google-genai \
-  langgraph python-dotenv google-genai
+  langfuse langchain langchain-core langchain-openai \
+  langgraph python-dotenv openai
 ```
 
 ### Configuration
@@ -107,8 +107,8 @@ LANGFUSE_SECRET_KEY=sk-lf-your-secret-key
 LANGFUSE_PUBLIC_KEY=pk-lf-your-public-key
 LANGFUSE_BASE_URL=http://localhost:3000
 
-GOOGLE_API_KEY=your-google-api-key
-OTEL_EXPORTER_OTLP_TIMEOUT=60000
+OPENAI_API_KEY=your-openai-api-key
+# OPENAI_BASE_URL=https://custom-endpoint (optional)
 ```
 
 > Get your Langfuse API keys from **Settings → API Keys** in your Langfuse dashboard.
@@ -184,7 +184,7 @@ Creates a **Langfuse Dataset**, runs each topic through the pipeline, and links 
 
 ## Tech Stack
 
-- **LLM**: Google Gemini 2.0 Flash (via `langchain-google-genai`)
+- **LLM**: OpenAI GPT-4o-mini (via `langchain-openai` and `openai`)
 - **Orchestration**: LangGraph (stateful, cyclic agent workflows)
 - **Observability**: Langfuse v3 (OpenTelemetry-based tracing)
 - **Language**: Python 3.12

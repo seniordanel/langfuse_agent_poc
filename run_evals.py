@@ -6,15 +6,15 @@ import time
 from typing import List, Dict, Any
 from dotenv import load_dotenv
 from langfuse import Langfuse
-from google import genai
+from src.openai_client import get_client, invoke
 from agent_poc import ReActAgent
 
 # Load environment variables
 load_dotenv()
 
-# Initialize Langfuse and Google GenAI
+# Initialize Langfuse and OpenAI client
 langfuse = Langfuse(timeout=120)
-client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+client = get_client()
 
 DATASET_NAME = "agent-poc-dataset-v2"
 EVAL_DATASET_PATH = "eval_dataset.json"
@@ -53,7 +53,7 @@ def get_or_create_dataset(items: List[Dict[str, Any]]) -> Any:
 
 def evaluate_response(input_text: str, actual_output: str, expected_output: str) -> float:
     """
-    Uses LLM as a Judge (Gemini) to evaluate if the actual output matches the expected output.
+    Uses LLM as a Judge to evaluate if the actual output matches the expected output.
     Returns a score between 0.0 and 1.0.
     """
     prompt = f"""
@@ -70,10 +70,9 @@ def evaluate_response(input_text: str, actual_output: str, expected_output: str)
     """
     
     try:
-        response = client.models.generate_content(
-            model="gemini-2.0-flash", contents=prompt
-        )
-        score_str = response.text.strip()
+        messages = [{"role": "user", "content": prompt}]
+        response_text = invoke(client, langfuse, messages, model="gpt-4o-mini")
+        score_str = response_text.strip()
         # Simple parsing to ensure we get a float
         score = float(score_str)
         return max(0.0, min(1.0, score))
@@ -120,7 +119,7 @@ def run_evals():
         # This automatically links the trace to the dataset item and handles lifecycle.
         with item.run(
             run_name="evaluation-run3",
-            run_metadata={"model": "gemini-2.0-flash"},
+            run_metadata={"model": "gpt-4o-mini"},
         ) as trace:
             # Execute Agent
             # The agent.run will now be a child span of this trace if contexts propagate correctly.

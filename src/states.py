@@ -19,3 +19,9 @@ class AgentState(TypedDict):
     final_output: str
     iteration_log: List[str]  # tracks which loops were triggered
     messages: Annotated[List[BaseMessage], operator.add]
+    # ── New fields for enhanced pipeline ──
+    enrichment_data: List[str]  # data from second research pass (Data Enricher)
+    quality_score: float  # final quality gate score
+    quality_revision_count: int  # quality gate loop counter
+    sentiment_scores: dict  # sentiment analysis results from Analyst
+    readability_grade: float  # Flesch-Kincaid grade level

@@ -67,6 +67,12 @@ def run_single_topic(langfuse: Langfuse, session_id: str, topic: dict, run_index
         "final_output": "",
         "iteration_log": [],
         "messages": [HumanMessage(content=task)],
+        # ── New fields for enhanced pipeline ──
+        "enrichment_data": [],
+        "quality_score": 0.0,
+        "quality_revision_count": 0,
+        "sentiment_scores": {},
+        "readability_grade": 0.0,
     }
 
     start_time = time.time()
@@ -126,7 +132,7 @@ def run_single_topic(langfuse: Langfuse, session_id: str, topic: dict, run_index
 def main():
     print("=" * 70)
     print("  MULTI-AGENT RESEARCH SYSTEM — Enhanced Langfuse Demo")
-    print("  9 Agents | 3 Topics | 8 Evaluations per Trace")
+    print("  11 Agents | 12 Tools | 3 Topics | 3 Feedback Loops | 8 Evaluations per Trace")
     print("=" * 70)
 
     langfuse = Langfuse(timeout=120)

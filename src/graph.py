@@ -3,6 +3,7 @@ from src.states import AgentState
 from src.agents import (
     researcher_node,
     analyst_node,
+    data_enricher_node,
     writer_node,
     fact_checker_node,
     editor_node,
@@ -10,6 +11,7 @@ from src.agents import (
     compliance_reviewer_node,
     exec_summarizer_node,
     translator_node,
+    quality_gate_node,
 )
 
 
@@ -49,13 +51,31 @@ def route_compliance(state: AgentState) -> str:
     return "editor"
 
 
+def route_quality_gate(state: AgentState) -> str:
+    """Route based on quality gate: loop back to editor or finish."""
+    quality_score = state.get("quality_score", 1.0)
+    quality_rev = state.get("quality_revision_count", 0)
+
+    if quality_score >= 0.8:
+        return "end"
+
+    # Max 1 quality revision loop
+    if quality_rev >= 1:
+        print("  [Router] Max quality revisions reached, finishing")
+        return "end"
+
+    print(f"  [Router] Quality gate failed (score {quality_score}), looping to editor")
+    return "editor"
+
+
 # ─── Build the Graph ─────────────────────────────────────────
 
 workflow = StateGraph(AgentState)
 
-# Add all 9 nodes
+# Add all 11 nodes
 workflow.add_node("researcher", researcher_node)
 workflow.add_node("analyst", analyst_node)
+workflow.add_node("data_enricher", data_enricher_node)
 workflow.add_node("writer", writer_node)
 workflow.add_node("fact_checker", fact_checker_node)
 workflow.add_node("editor", editor_node)
@@ -63,12 +83,14 @@ workflow.add_node("seo_optimizer", seo_optimizer_node)
 workflow.add_node("compliance_reviewer", compliance_reviewer_node)
 workflow.add_node("exec_summarizer", exec_summarizer_node)
 workflow.add_node("translator", translator_node)
+workflow.add_node("quality_gate", quality_gate_node)
 
 # ─── Edges ───────────────────────────────────────────────────
-# Linear flow: Researcher → Analyst → Writer
+# Linear flow: Researcher → Analyst → Data Enricher → Writer
 workflow.set_entry_point("researcher")
 workflow.add_edge("researcher", "analyst")
-workflow.add_edge("analyst", "writer")
+workflow.add_edge("analyst", "data_enricher")
+workflow.add_edge("data_enricher", "writer")
 
 # Writer → Fact-Checker
 workflow.add_edge("writer", "fact_checker")
@@ -93,9 +115,18 @@ workflow.add_conditional_edges(
     {"editor": "editor", "exec_summarizer": "exec_summarizer"},
 )
 
-# Exec Summarizer → Translator → END
+# Exec Summarizer → Translator
 workflow.add_edge("exec_summarizer", "translator")
-workflow.add_edge("translator", END)
+
+# Translator → Quality Gate
+workflow.add_edge("translator", "quality_gate")
+
+# Conditional 3: Quality Gate → Editor (loop) or END
+workflow.add_conditional_edges(
+    "quality_gate",
+    route_quality_gate,
+    {"editor": "editor", "end": END},
+)
 
 # ─── Compile ─────────────────────────────────────────────────
 app = workflow.compile()
